@@ -8,9 +8,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
+import ent.Game;
 import ent.Player;
 
 public class AccesoDatos {
@@ -22,7 +24,7 @@ public class AccesoDatos {
     /**
      * Metodo para crear la tabla players
      */
-    public static void crearTablaPlayer() {
+    public static void crearTablaPlayers() {
         Connection conn = null;
         Statement stmt = null;
         try {
@@ -60,7 +62,7 @@ public class AccesoDatos {
      * Metodo para obtener los jugadores del fichero
      * @return List de jugadores
      */
-    private List<Player> getPlayers() {
+    private static List<Player> getPlayers() {
         List<Player> players = new ArrayList<>();
         
         // Leemos el fichero data_players.txt
@@ -97,7 +99,7 @@ public class AccesoDatos {
      * Metodo para insertar los jugadores en la base de datos
      */
     public static void insertarPlayers() {
-        List<Player> players = new AccesoDatos().getPlayers();
+        List<Player> players = getPlayers();
         Connection conn = null;
         Statement stmt = null;
         PreparedStatement ps = null;
@@ -127,6 +129,139 @@ public class AccesoDatos {
             try {
                 if (stmt != null) {
                     stmt.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Metodo para crear la tabla games
+     */
+    public static void crearTablaGames() {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(use);
+            String sql = "CREATE TABLE Games(" +
+                "idGame int Primary Key auto_increment," +
+                "nombre varchar(45)," +
+                "tiempoJugado TIME);";
+            stmt.execute(sql);
+            System.out.println("Tabla GAMES  creada");
+        } catch (SQLException se) {
+            // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+            // inserción
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Metodo para obtener los juegos del fichero
+     * @return List de juegos
+     */
+    private static List<Game> getGames() {
+        List<Game> games = new ArrayList<>();
+        
+        // Leemos el fichero data_games.txt
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/files/data_games.txt"))) {
+            String linea;
+
+            // Cogemos la linea
+            while ((linea = reader.readLine()) != null) {
+                // Dividimos la linea
+                String[] data = linea.split(",");
+
+                // Cogemos los datos
+                int id = Integer.parseInt(data[0]);
+                String nombre = data[1];
+                String tiempoJugado = data[2];
+
+                // Creamos el game
+                Game game = new Game(id, nombre, tiempoJugado);
+                
+                // Lo anadimos a la lista
+                games.add(game);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return games;
+    }
+
+    /**
+     * Metodo para insertar los juegos en la base de datos
+     */
+    public static void insertarGames() {
+        List<Game> games = getGames();
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(use);
+
+            // Preparamos la consulta
+            String sql = "INSERT INTO Games (nombre, tiempoJugado) VALUES (?, ?)";
+            ps = conn.prepareStatement(sql);
+
+            // Recorremos los juegos
+            for (Game game : games) {
+                // Insertamos los juegos
+                ps.setString(1, game.getNombre());
+
+                String tiempoJugado = game.getTiempoJugado();
+
+                // Comprobamos que el formato de tiempo jugado sea HH:MM:SS
+                if (!tiempoJugado.matches("\\d{2}:\\d{2}:\\d{2}")) {
+                    // Si no es así, le añadimos segundos
+                    tiempoJugado += ":00";
+                }
+                
+                Time time = Time.valueOf(tiempoJugado);
+                
+                ps.setTime(2, time);
+                ps.executeUpdate();
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                
+                if (ps != null) {
+                    ps.close();
                 }
                 if (conn != null) {
                     conn.close();
