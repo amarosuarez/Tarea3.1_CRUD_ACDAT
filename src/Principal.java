@@ -1,4 +1,7 @@
+import java.util.List;
+
 import dal.AccesoDatos;
+import ent.Compra;
 
 public class Principal {
     public static void main(String[] args) throws Exception {
@@ -8,8 +11,14 @@ public class Principal {
         // Insertamos los jugadores
         // AccesoDatos.insertarPlayers();
 
-        AccesoDatos.crearTablaGames();
+        // AccesoDatos.crearTablaGames();
 
-        AccesoDatos.insertarGames();
+        // AccesoDatos.insertarGames();
+
+        List<Compra> compras = AccesoDatos.getCompras();
+
+        for (Compra compra : compras) {
+            System.out.println(compra.getCosa());
+        }
     }
 }

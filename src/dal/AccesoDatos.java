@@ -9,9 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import ent.Compra;
 import ent.Game;
 import ent.Player;
 
@@ -32,10 +36,10 @@ public class AccesoDatos {
             stmt = conn.createStatement();
             stmt.executeUpdate(use);
             String sql = "CREATE TABLE Players(" +
-                "idPlayer int Primary Key auto_increment," +
-                "nick varchar(45)," +
-                "password varchar(128)," +
-                "email varchar(100));";
+                    "idPlayer int Primary Key auto_increment," +
+                    "nick varchar(45)," +
+                    "password varchar(128)," +
+                    "email varchar(100));";
             stmt.execute(sql);
             System.out.println("Tabla players creada");
         } catch (SQLException se) {
@@ -60,11 +64,12 @@ public class AccesoDatos {
 
     /**
      * Metodo para obtener los jugadores del fichero
+     * 
      * @return List de jugadores
      */
     private static List<Player> getPlayers() {
         List<Player> players = new ArrayList<>();
-        
+
         // Leemos el fichero data_players.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("src/files/data_players.txt"))) {
             String linea;
@@ -82,7 +87,7 @@ public class AccesoDatos {
 
                 // Creamos el jugador
                 Player player = new Player(id, nick, password, email);
-                
+
                 // Lo anadimos a la lista
                 players.add(player);
             }
@@ -91,7 +96,7 @@ public class AccesoDatos {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return players;
     }
 
@@ -153,9 +158,9 @@ public class AccesoDatos {
             stmt = conn.createStatement();
             stmt.executeUpdate(use);
             String sql = "CREATE TABLE Games(" +
-                "idGame int Primary Key auto_increment," +
-                "nombre varchar(45)," +
-                "tiempoJugado TIME);";
+                    "idGame int Primary Key auto_increment," +
+                    "nombre varchar(45)," +
+                    "tiempoJugado TIME);";
             stmt.execute(sql);
             System.out.println("Tabla GAMES  creada");
         } catch (SQLException se) {
@@ -180,11 +185,12 @@ public class AccesoDatos {
 
     /**
      * Metodo para obtener los juegos del fichero
+     * 
      * @return List de juegos
      */
     private static List<Game> getGames() {
         List<Game> games = new ArrayList<>();
-        
+
         // Leemos el fichero data_games.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("src/files/data_games.txt"))) {
             String linea;
@@ -201,7 +207,7 @@ public class AccesoDatos {
 
                 // Creamos el game
                 Game game = new Game(id, nombre, tiempoJugado);
-                
+
                 // Lo anadimos a la lista
                 games.add(game);
             }
@@ -210,7 +216,7 @@ public class AccesoDatos {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return games;
     }
 
@@ -244,9 +250,9 @@ public class AccesoDatos {
                     // Si no es así, le añadimos segundos
                     tiempoJugado += ":00";
                 }
-                
+
                 Time time = Time.valueOf(tiempoJugado);
-                
+
                 ps.setTime(2, time);
                 ps.executeUpdate();
             }
@@ -259,7 +265,7 @@ public class AccesoDatos {
                 if (stmt != null) {
                     stmt.close();
                 }
-                
+
                 if (ps != null) {
                     ps.close();
                 }
@@ -270,6 +276,97 @@ public class AccesoDatos {
                 System.out.println("No se ha podido cerrar la conexión.");
             }
         }
+    }
+
+    /**
+     * Metodo para crear la tabla compras
+     */
+    public static void crearTablaCompras() {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(use);
+            String sql = "CREATE TABLE Compras(" +
+                    "idCompra int Primary Key auto_increment," +
+                    "idPlayer int," +
+                    "idGame int," +
+                    "cosa Varchar(25)," +
+                    "precio decimal(6,2)," +
+                    "fechaCompra DATE," +
+                    "FOREIGN KEY (idPlayer) REFERENCES Players(idPlayer), " +
+                    "FOREIGN KEY (idGame) REFERENCES Games(idGame)" +
+                    ");";
+            stmt.execute(sql);
+            System.out.println("Tabla Compras creada");
+        } catch (SQLException se) {
+            // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+            // inserción
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Metodo para obtener las compras del fichero
+     * 
+     * @return List de compras
+     */
+    public static List<Compra> getCompras() {
+        List<Compra> compras = new ArrayList<>();
+
+        // Leemos el fichero data_games.txt
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/files/data_compras.txt"))) {
+            String linea;
+
+            // Cogemos la linea
+            while ((linea = reader.readLine()) != null) {
+                // Dividimos la linea
+                String[] data = linea.split(",");
+
+                // Cogemos los datos
+                int id = Integer.parseInt(data[0]);
+                int idPlayer = Integer.parseInt(data[1]);
+                int idGame = Integer.parseInt(data[2]);
+                String cosa = data[3];
+                String precio = data[4];
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                java.util.Date fecha = new Date();
+
+                try {
+                    // Convertir el string a un objeto Date
+                    fecha = sdf.parse(data[5]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                // Creamos las compra
+                Compra compra = new Compra(id, idPlayer, idGame, cosa, Double.parseDouble(precio), fecha);
+
+                // Lo anadimos a la lista
+                compras.add(compra);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return compras;
     }
 
 }
