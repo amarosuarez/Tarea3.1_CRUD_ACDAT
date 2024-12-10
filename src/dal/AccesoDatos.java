@@ -9,16 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ent.Compra;
 import ent.Game;
 import ent.Player;
 
+/**
+ * Clase AccesoDatos
+ */
 public class AccesoDatos {
     /**
      * Variable para usar la base de datos
@@ -64,7 +64,7 @@ public class AccesoDatos {
 
     /**
      * Metodo para obtener los jugadores del fichero
-     * 
+     *
      * @return List de jugadores
      */
     private static List<Player> getPlayers() {
@@ -343,16 +343,7 @@ public class AccesoDatos {
                 int idGame = Integer.parseInt(data[2]);
                 String cosa = data[3];
                 String precio = data[4];
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-                java.util.Date fecha = new Date();
-
-                try {
-                    // Convertir el string a un objeto Date
-                    fecha = sdf.parse(data[5]);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                String fecha = data[5];
 
                 // Creamos las compra
                 Compra compra = new Compra(id, idPlayer, idGame, cosa, Double.parseDouble(precio), fecha);
@@ -369,4 +360,55 @@ public class AccesoDatos {
         return compras;
     }
 
+    /**
+     * Metodo para insertar las compras en la base de datos
+     */
+    public static void insertarCompras() {
+        List<Compra> compras = getCompras();
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(use);
+
+            // Preparamos la consulta
+            String sql = "INSERT INTO Compras (idPlayer, idGame, cosa, precio, fechaCompra) VALUES (?, ?, ?, ?, ?)";
+            ps = conn.prepareStatement(sql);
+
+            // Recorremos las compras
+            for (Compra compra : compras) {
+                // Insertamos las compras
+                ps.setInt(1, compra.getIdPlayer());
+                ps.setInt(2, compra.getIdGame());
+                ps.setString(3, compra.getCosa());
+                ps.setDouble(4, compra.getPrecio());
+                ps.setString(5, compra.getFecha());
+                ps.executeUpdate();
+            }
+
+            System.out.println("Compras insertadas");
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
 }

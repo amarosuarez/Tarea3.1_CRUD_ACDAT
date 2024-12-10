@@ -1,7 +1,5 @@
 package ent;
 
-import java.util.Date;
-
 /**
  * Clase Compra
  */
@@ -34,7 +32,7 @@ public class Compra {
     /**
      * Atributo que almacena la fecha
      */
-    private Date fecha;
+    private String fecha;
 
     /**
      * Constructor de la clase Compra
@@ -45,7 +43,7 @@ public class Compra {
      * @param precio precio
      * @param fecha fecha
      */
-    public Compra(int idCompra, int idPlayer, int idGame, String cosa, double precio, Date fecha) {
+    public Compra(int idCompra, int idPlayer, int idGame, String cosa, double precio, String fecha) {
         if (idCompra > 0) {
             this.idCompra = idCompra;
         }
@@ -165,7 +163,7 @@ public class Compra {
      * Devuelve la fecha
      * @return fecha
      */
-    public Date getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
@@ -173,7 +171,7 @@ public class Compra {
      * Establece la fecha
      * @param fecha fecha
      */
-    public void setFecha(Date fecha) {
+    public void setFecha(String fecha) {
         if (fecha != null) {
             this.fecha = fecha;
         }
