@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
@@ -29,36 +31,40 @@ public class AccesoDatos {
      * Metodo para crear la tabla players
      */
     public static void crearTablaPlayers() {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = ConexionDB.connect();
-            stmt = conn.createStatement();
-            stmt.executeUpdate(use);
-            String sql = "CREATE TABLE Players(" +
-                    "idPlayer int Primary Key auto_increment," +
-                    "nick varchar(45)," +
-                    "password varchar(128)," +
-                    "email varchar(100));";
-            stmt.execute(sql);
-            System.out.println("Tabla players creada");
-        } catch (SQLException se) {
-            // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
-            // inserción
-            se.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Se ha producido un error.");
-        } finally {
+        if (!AccesoDatos.tablaExiste("Players")) {
+            Connection conn = null;
+            Statement stmt = null;
             try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
+                conn = ConexionDB.connect();
+                stmt = conn.createStatement();
+                stmt.executeUpdate(use);
+                String sql = "CREATE TABLE Players(" +
+                        "idPlayer int Primary Key auto_increment," +
+                        "nick varchar(45)," +
+                        "password varchar(128)," +
+                        "email varchar(100));";
+                stmt.execute(sql);
+                System.out.println("Tabla PLAYERS creada");
             } catch (SQLException se) {
-                System.out.println("No se ha podido cerrar la conexión.");
+                // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+                // inserción
+                se.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("Se ha producido un error creando la tabla Players.");
+            } finally {
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException se) {
+                    System.out.println("No se ha podido cerrar la conexión.");
+                }
             }
+        } else {
+            System.err.println("La tabla Players ya existe.");
         }
     }
 
@@ -151,35 +157,39 @@ public class AccesoDatos {
      * Metodo para crear la tabla games
      */
     public static void crearTablaGames() {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = ConexionDB.connect();
-            stmt = conn.createStatement();
-            stmt.executeUpdate(use);
-            String sql = "CREATE TABLE Games(" +
-                    "idGame int Primary Key auto_increment," +
-                    "nombre varchar(45)," +
-                    "tiempoJugado TIME);";
-            stmt.execute(sql);
-            System.out.println("Tabla GAMES  creada");
-        } catch (SQLException se) {
-            // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
-            // inserción
-            se.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Se ha producido un error.");
-        } finally {
+        if (!AccesoDatos.tablaExiste("Games")) {
+            Connection conn = null;
+            Statement stmt = null;
             try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
+                conn = ConexionDB.connect();
+                stmt = conn.createStatement();
+                stmt.executeUpdate(use);
+                String sql = "CREATE TABLE Games(" +
+                        "idGame int Primary Key auto_increment," +
+                        "nombre varchar(45)," +
+                        "tiempoJugado TIME);";
+                stmt.execute(sql);
+                System.out.println("Tabla GAMES creada");
             } catch (SQLException se) {
-                System.out.println("No se ha podido cerrar la conexión.");
+                // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+                // inserción
+                se.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("Se ha producido un error creando la tabla Games.");
+            } finally {
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException se) {
+                    System.out.println("No se ha podido cerrar la conexión.");
+                }
             }
+        } else {
+            System.err.println("La tabla Games ya existe.");
         }
     }
 
@@ -282,41 +292,51 @@ public class AccesoDatos {
      * Metodo para crear la tabla compras
      */
     public static void crearTablaCompras() {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = ConexionDB.connect();
-            stmt = conn.createStatement();
-            stmt.executeUpdate(use);
-            String sql = "CREATE TABLE Compras(" +
-                    "idCompra int Primary Key auto_increment," +
-                    "idPlayer int," +
-                    "idGame int," +
-                    "cosa Varchar(25)," +
-                    "precio decimal(6,2)," +
-                    "fechaCompra DATE," +
-                    "FOREIGN KEY (idPlayer) REFERENCES Players(idPlayer), " +
-                    "FOREIGN KEY (idGame) REFERENCES Games(idGame)" +
-                    ");";
-            stmt.execute(sql);
-            System.out.println("Tabla Compras creada");
-        } catch (SQLException se) {
-            // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
-            // inserción
-            se.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Se ha producido un error.");
-        } finally {
-            try {
-                if (stmt != null) {
-                    stmt.close();
+        // Comprobamos que no exista ya la tabla
+        if (!AccesoDatos.tablaExiste("Compras")) {
+            // Comprobamos que existan las tablas Players y Games, ya que depende de ellas
+            if (AccesoDatos.tablaExiste("Players") && AccesoDatos.tablaExiste("Games")) {
+                Connection conn = null;
+                Statement stmt = null;
+                try {
+                    conn = ConexionDB.connect();
+                    stmt = conn.createStatement();
+                    stmt.executeUpdate(use);
+                    String sql = "CREATE TABLE Compras(" +
+                            "idCompra int Primary Key auto_increment," +
+                            "idPlayer int," +
+                            "idGame int," +
+                            "cosa Varchar(25)," +
+                            "precio decimal(6,2)," +
+                            "fechaCompra DATE," +
+                            "FOREIGN KEY (idPlayer) REFERENCES Players(idPlayer), " +
+                            "FOREIGN KEY (idGame) REFERENCES Games(idGame)" +
+                            ");";
+                    stmt.execute(sql);
+                    System.out.println("Tabla COMPRAS creada");
+                } catch (SQLException se) {
+                    // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+                    // inserción
+                    se.printStackTrace();
+                } catch (Exception e) {
+                    System.out.println("Se ha producido un error creando la tabla Compras.");
+                } finally {
+                    try {
+                        if (stmt != null) {
+                            stmt.close();
+                        }
+                        if (conn != null) {
+                            conn.close();
+                        }
+                    } catch (SQLException se) {
+                        System.out.println("No se ha podido cerrar la conexión.");
+                    }
                 }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException se) {
-                System.out.println("No se ha podido cerrar la conexión.");
+            } else {
+                System.err.println("No se pudo crear la tabla porque necesita que la tabla Players y Games existan.");
             }
+        } else {
+            System.err.println("La tabla Compras ya existe.");
         }
     }
 
@@ -410,5 +430,115 @@ public class AccesoDatos {
                 System.out.println("No se ha podido cerrar la conexión.");
             }
         }
+    }
+
+    
+    /**
+     * Verifica si existe una tabla en la base de datos
+     * @param nombreTabla nombre de la tabla a verificar
+     * @return true si la tabla existe, false en caso contrario
+     */
+    public static boolean tablaExiste(String nombreTabla) {
+        boolean existe = false;
+
+        Connection conn;
+        try {
+            conn = ConexionDB.connect();
+            if (conn != null) {
+                DatabaseMetaData dbm = conn.getMetaData();
+
+                ResultSet tables;
+                try {
+                    tables = dbm.getTables(null, null, nombreTabla, null);
+                    existe = tables.next(); // Verifica si hay al menos una coincidencia.
+                } catch (SQLException e) {
+                    System.err.println("Ha ocurrido un error al verificar la tabla: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Conexión a la base de datos fallida.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Ha ocurrido un error al verificar la tabla: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return existe;
+    }
+
+    /**
+     * Elimina una tabla de la base de datos
+     * @param nombreTabla nombre de la tabla a eliminar
+     */
+    public static void eliminarTabla(String nombreTabla) {
+        //TODO
+        if (AccesoDatos.tablaExiste(nombreTabla)) {
+            Connection conn = null;
+            Statement stmt = null;
+            try {
+                conn = ConexionDB.connect();
+                stmt = conn.createStatement();
+                stmt.executeUpdate(use);
+                String sql = "DROP TABLE " + nombreTabla;
+                stmt.execute(sql);
+                System.out.println("Tabla " + nombreTabla + " eliminada.");
+            } catch (SQLException se) {
+                // Gestionamos los posibles errores que puedan surgir durante la ejecución de la
+                // inserción
+                se.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("Se ha producido un error eliminando la tabla " + nombreTabla + ".");
+            } finally {
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException se) {
+                    System.out.println("No se ha podido cerrar la conexión.");
+                }
+            }
+        } else {
+            System.err.println("La tabla " + nombreTabla + " no existe.");
+        }
+    }
+
+    public static List<Player> buscarPlayer(String nombre) {
+        List<Player> players = new ArrayList<>();
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(use);
+            String sql = "SELECT * FROM Players WHERE nick LIKE '" + nombre + "%'";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String nick = rs.getString(2);
+                String password = rs.getString(3);
+                String email = rs.getString(4);
+
+                Player player = new Player(id, nick, password, email);
+                players.add(player);
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return players;
     }
 }
