@@ -5,12 +5,12 @@
     "java.project.outputPath": "bin",
 
     // Windows
-    "java.project.referencedLibraries": [
-        "lib\\mysql-connector-j-9.1.0.jar"
-    ]
+    // "java.project.referencedLibraries": [
+    //     "lib\\mysql-connector-j-9.1.0.jar"
+    // ]
 
     // Mac
-    // "java.project.referencedLibraries": [
-    //     "lib/mysql-connector-j-9.1.0.jar"
-    // ]
+    "java.project.referencedLibraries": [
+        "lib/mysql-connector-j-9.1.0.jar"
+    ]
 }

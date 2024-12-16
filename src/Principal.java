@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Year;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -94,6 +95,7 @@ public class Principal {
             case 7:
                 break;
             case 8:
+                System.out.println();
                 System.out.println("Gracias por usar el programa!");
                 break;
         }
@@ -121,12 +123,14 @@ public class Principal {
 
             switch (opcion) {
                 case 1:
+                    // Creamos todas las tablas
                     System.out.println("Creando tablas...");
                     AccesoDatos.crearTablaPlayers();
                     AccesoDatos.crearTablaGames();
                     AccesoDatos.crearTablaCompras();
                     break;
                 case 2:
+                    // Creamos una tabla
                     menuTablas();
                     break;
                 case 3:
@@ -160,14 +164,17 @@ public class Principal {
 
             switch (opcionTabla) {
                 case 1:
+                    // Creamos la tabla Players
                     System.out.println("Creando la tabla PLAYERS...");
                     AccesoDatos.crearTablaPlayers();
                     break;
                 case 2:
+                    // Creamos la tabla Games
                     System.out.println("Creando la tabla GAMES...");
                     AccesoDatos.crearTablaGames();
                     break;
                 case 3:
+                    // Creamos la tabla Compras
                     AccesoDatos.crearTablaCompras();
                     break;
                 case 4:
@@ -179,10 +186,12 @@ public class Principal {
 
     }
 
+    // Metodo para insertar datos
     private static void insertar() {
         int opcion = 0;
 
         do {
+            // Mostramos las opciones
             System.out.println();
             System.out.println("¿En cuál tabla deseas insertar?");
             System.out.println("1. Players");
@@ -199,17 +208,40 @@ public class Principal {
                 }
             } while (opcion < 1 || opcion > 4);
 
+            // Pedimos los datos según la opción
             switch (opcion) {
                 case 1:
+                    // Pedimos los datos del Player y lo insertamos
                     Player jugador = (Player) pideDatos(1);
-                    System.out.println(jugador.getNick());
+
+                    // Mostramos el resultado
+                    if (AccesoDatos.insertarPlayer(jugador)) {
+                        System.out.println("Jugador insertado");
+                    } else {
+                        System.out.println("No se pudo insertar al jugador");
+                    }
                     break;
                 case 2:
+                    // Pedimos los datos del Game y lo insertamos
                     Game game = (Game) pideDatos(2);
-                    System.out.println(game.getTiempoJugado());
+
+                    // Mostramos el resultado
+                    if (AccesoDatos.insertarGame(game)) {
+                        System.out.println("Game insertado");
+                    } else {
+                        System.out.println("No se pudo insertar el game");
+                    }
                     break;
                 case 3:
+                    // Pedimos los datos de la Compra y lo insertamos
                     Compra compra = (Compra) pideDatos(3);
+
+                    // Mostramos el resultado
+                    if (AccesoDatos.insertarCompra(compra)) {
+                        System.out.println("Compra insertada");
+                    } else {
+                        System.out.println("No se pudo insertar la compra");
+                    }
                     break;
 
             }
@@ -217,129 +249,293 @@ public class Principal {
         } while (opcion != 4);
     }
 
+    // Metodo que pide los datos del objeto especificado
+    // 1. Player
+    // 2. Game
+    // 3. Compra
     private static Object pideDatos(int opcion) {
         Object object = null;
 
+        // Según la opción, pedimos los datos correspondientes
         switch (opcion) {
             case 1:
-                scanner.nextLine();
-                String nombre = "";
-                String password = "";
-                String email = "";
-
-                System.out.println();
-                do {
-                    System.out.println("Introduce el nombre del jugador: ");
-                    nombre = scanner.nextLine();
-                } while (nombre.isEmpty());
-
-                System.out.println();
-                do {
-                    System.out.println("Introduce la contraseña del jugador: ");
-                    password = scanner.nextLine();
-                } while (password.isEmpty());
-
-                System.out.println();
-                do {
-                    System.out.println("Introduce el email del jugador: ");
-                    email = scanner.nextLine();
-                } while (email.isEmpty());
-
-                object = new Player(0, nombre, password, email);
+                // Pedimos los datos de un Player
+                object = pideDatosPlayer();
                 break;
-
             case 2:
-                scanner.nextLine();
-
-                String nombreJuego = "";
-                String horaJuego = "";
-                int horas = -1;
-                int minutos = -1;
-                int segundos = -1;
-                System.out.println();
-
-                do {
-                    System.out.println("Introduce el nombre del juego: ");
-                    nombreJuego = scanner.nextLine();
-                } while (nombreJuego.isEmpty());
-
-                System.out.println();
-                do {
-                    try {
-                        System.out.println("Introduce las horas jugadas: ");
-                        horas = scanner.nextInt();
-                    } catch (InputMismatchException e) {
-                        System.err.println("Introduzca un número");
-                        scanner.nextLine();
-                    }
-                } while (horas < 0);
-
-                System.out.println();
-                do {
-                    try {
-                        System.out.println("Introduce los minutos jugados: ");
-                        minutos = scanner.nextInt();
-                    } catch (InputMismatchException e) {
-                        System.err.println("Introduzca un número");
-                        scanner.nextLine();
-                    }
-                } while (minutos < 0 || minutos > 59);
-
-                System.out.println();
-                do {
-                    try {
-                        System.out.println("Introduce los segundos jugados: ");
-                        segundos = scanner.nextInt();
-                    } catch (InputMismatchException e) {
-                        System.err.println("Introduzca un número");
-                        scanner.nextLine();
-                    }
-                } while (segundos < 0 || segundos > 59);
-
-                horaJuego = (horas > 9 ? horas : "0" + horas) + ":" + (minutos > 9 ? minutos : "0" + minutos) + ":"
-                        + (segundos > 9 ? segundos : "0" + segundos);
-
-                object = new Game(0, nombreJuego, horaJuego);
+                // Pedimos los datos de un Game
+                object = pideDatosGame();
                 break;
-
             case 3:
-                scanner.nextLine();
-
-                int idPlayer = -1;
-                String nombreJugador = "";
-                boolean jugadorEncontrado = false;
-
-                do {
-                    System.out.println("Nombre del jugador?");
-                    nombreJugador = scanner.nextLine();
-
-                    List<Player> players = AccesoDatos.buscarPlayer(nombreJugador);
-
-                    jugadorEncontrado = players.isEmpty();
-
-                    if (players.isEmpty()) {
-                        System.out.println("No se ha encontrado ningú jugador con ese nombre");
-                    } else {
-                        if (players.size() > 1) {
-                            System.out.println("Se han encontrado los siguientes jugadores");
-                            System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
-                            System.out.println("-".repeat(80));
-                            for (int i = 0; i < players.size(); i++) {
-                                Player player = players.get(i);
-                                System.out.printf("| %-10s | %-25s | %-15s %n",  i, player.getNick(), player.getEmail());
-                                System.out.println("-".repeat(80));
-                            }
-                            System.out.println();
-                            System.out.println("Elige un jugador de los mostrados arriba");
-                        } else {
-                            idPlayer = players.get(0).getIdPlayer();
-                        }
-                    }
-                } while (jugadorEncontrado);
-
+                // Pedimos los datos de una Compra
+                object = pideDatosCompra();
                 break;
         }
 
         return object;
+    }
+
+    // Pide los datos de un jugador
+    private static Player pideDatosPlayer() {
+        scanner.nextLine();
+        String nombre = "";
+        String password = "";
+        String email = "";
+
+        System.out.println();
+        do {
+            System.out.println("Introduce el nombre del jugador: ");
+            nombre = scanner.nextLine();
+        } while (nombre.isEmpty());
+
+        System.out.println();
+        do {
+            System.out.println("Introduce la contraseña del jugador: ");
+            password = scanner.nextLine();
+        } while (password.isEmpty());
+
+        System.out.println();
+        do {
+            System.out.println("Introduce el email del jugador: ");
+            email = scanner.nextLine();
+        } while (email.isEmpty());
+
+        Player player = new Player(0, nombre, password, email);
+
+        return player;
+    }
+
+    // Pide los datos de un juego
+    private static Game pideDatosGame() {
+        scanner.nextLine();
+
+        String nombreJuego = "";
+        String horaJuego = "";
+        int horas = -1;
+        int minutos = -1;
+        int segundos = -1;
+        System.out.println();
+
+        do {
+            System.out.println("Introduce el nombre del juego: ");
+            nombreJuego = scanner.nextLine();
+        } while (nombreJuego.isEmpty());
+
+        System.out.println();
+        do {
+            try {
+                System.out.println("Introduce las horas jugadas: ");
+                horas = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (horas < 0);
+
+        System.out.println();
+        do {
+            try {
+                System.out.println("Introduce los minutos jugados: ");
+                minutos = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (minutos < 0 || minutos > 59);
+
+        System.out.println();
+        do {
+            try {
+                System.out.println("Introduce los segundos jugados: ");
+                segundos = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (segundos < 0 || segundos > 59);
+
+        horaJuego = (horas > 9 ? horas : "0" + horas) + ":" + (minutos > 9 ? minutos : "0" + minutos) + ":"
+                + (segundos > 9 ? segundos : "0" + segundos);
+
+        Game game = new Game(0, nombreJuego, horaJuego);
+
+        return game;
+    }
+
+    // Pide los datos de una Compra
+    private static Compra pideDatosCompra() {
+        scanner.nextLine();
+
+        boolean jugadorEncontrado = false;
+        boolean juegoEncontrado = false;
+        int idGame = -1;
+        int idPlayer = -1;
+        String nombreJugador = "";
+        String nombreJuego = "";
+        String cosa = "";
+        double precio = -1;
+        int dia = -1;
+        int mes = -1;
+        int anyo = -1;
+        String date = "";
+        boolean diaCorrecto = false;
+
+        do {
+            System.out.println();
+            System.out.println("Nombre del jugador?");
+            nombreJugador = scanner.nextLine();
+
+            List<Player> players = AccesoDatos.buscarPlayer(nombreJugador);
+
+            jugadorEncontrado = players.isEmpty();
+
+            if (players.isEmpty()) {
+                System.out.println("No se ha encontrado ningún jugador con ese nombre");
+            } else {
+                if (players.size() > 1) {
+                    System.out.println("Se han encontrado los siguientes jugadores:");
+                    System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
+                    System.out.println("-".repeat(80));
+                    for (int i = 0; i < players.size(); i++) {
+                        Player player = players.get(i);
+                        System.out.printf("| %-10s | %-25s | %-15s %n", i, player.getNick(), player.getEmail());
+                        System.out.println("-".repeat(80));
+                    }
+                    int jugadorElegido = -1;
+                    do {
+                        System.out.println();
+                        System.out.println("Elige un jugador de los mostrados arriba");
+                        try {
+                            jugadorElegido = scanner.nextInt();
+                            scanner.nextLine();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                            scanner.nextLine();
+                        }
+                    } while (jugadorElegido < 0 || jugadorElegido >= players.size());
+                    idPlayer = players.get(jugadorElegido).getIdPlayer();
+                } else {
+                    idPlayer = players.get(0).getIdPlayer();
+                }
+            }
+        } while (jugadorEncontrado);
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el nombre del juego: ");
+            nombreJuego = scanner.nextLine();
+
+            List<Game> games = AccesoDatos.buscarGame(nombreJuego);
+
+            juegoEncontrado = games.isEmpty();
+
+            if (!games.isEmpty()) {
+                if (games.size() > 1) {
+                    System.out.println("Se han encontrado los siguientes juegos:");
+                    System.out.printf("| %-10s | %-40s %n", "Número", "Nombre");
+                    System.out.println("-".repeat(80));
+                    for (int i = 0; i < games.size(); i++) {
+                        Game game = games.get(i);
+                        System.out.printf("| %-10s | %-40s %n", i, game.getNombre());
+                        System.out.println("-".repeat(80));
+                    }
+
+                    int juegoElegido = -1;
+                    do {
+                        System.out.println();
+                        System.out.println("Elige un juego de los mostrados arriba");
+                        try {
+                            juegoElegido = scanner.nextInt();
+                            scanner.nextLine();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                            scanner.nextLine();
+                        }
+                    } while (juegoElegido < 0 || juegoElegido >= games.size());
+                    idGame = games.get(juegoElegido).getIdGame();
+                    cosa = games.get(juegoElegido).getNombre();
+                } else {
+                    idGame = games.get(0).getIdGame();
+                    cosa = games.get(0).getNombre();
+                }
+            } else {
+                System.out.println("No se ha encontrado ningú juego con ese nombre");
+            }
+
+        } while (juegoEncontrado);
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el precio de la compra: ");
+            try {
+                precio = scanner.nextDouble();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (precio < 0);
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el anyo de la compra: ");
+            try {
+                anyo = scanner.nextInt();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (anyo < 0 || anyo > Year.now().getValue());
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el mes de la compra: ");
+            try {
+                mes = scanner.nextInt();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+        } while (mes < 0 || mes > 12);
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el dia de la compra: ");
+            try {
+                dia = scanner.nextInt();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+                scanner.nextLine();
+            }
+
+            if (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12) {
+                if (dia > 0 && dia <= 31) {
+                    diaCorrecto = true;
+                }
+            } else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+                if (dia > 0 && dia <= 30) {
+                    diaCorrecto = true;
+                }
+            } else if (mes == 2) {
+                if (Year.isLeap(anyo)) {
+                    if (dia > 0 && dia <= 29) {
+                        diaCorrecto = true;
+                    }
+                } else {
+                    if (dia > 0 && dia <= 28) {
+                        diaCorrecto = true;
+                    }
+                }
+            }
+        } while (!diaCorrecto);
+
+        date = anyo + "-" + mes + "-" + dia;
+
+        Compra compra = new Compra(0, idPlayer, idGame, cosa, precio, date);
+
+        return compra;
     }
 }

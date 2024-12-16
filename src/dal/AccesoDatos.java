@@ -25,7 +25,7 @@ public class AccesoDatos {
     /**
      * Variable para usar la base de datos
      */
-    private static String use = "USE ad2425_asuarez;";
+    private static String useDB = "USE ad2425_asuarez;";
 
     /**
      * Metodo para crear la tabla players
@@ -37,7 +37,7 @@ public class AccesoDatos {
             try {
                 conn = ConexionDB.connect();
                 stmt = conn.createStatement();
-                stmt.executeUpdate(use);
+                stmt.executeUpdate(useDB);
                 String sql = "CREATE TABLE Players(" +
                         "idPlayer int Primary Key auto_increment," +
                         "nick varchar(45)," +
@@ -118,7 +118,7 @@ public class AccesoDatos {
         try {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
-            stmt.executeUpdate(use);
+            stmt.executeUpdate(useDB);
 
             // Preparamos la consulta
             String sql = "INSERT INTO Players (nick, password, email) VALUES (?, ?, ?)";
@@ -163,7 +163,7 @@ public class AccesoDatos {
             try {
                 conn = ConexionDB.connect();
                 stmt = conn.createStatement();
-                stmt.executeUpdate(use);
+                stmt.executeUpdate(useDB);
                 String sql = "CREATE TABLE Games(" +
                         "idGame int Primary Key auto_increment," +
                         "nombre varchar(45)," +
@@ -242,7 +242,7 @@ public class AccesoDatos {
         try {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
-            stmt.executeUpdate(use);
+            stmt.executeUpdate(useDB);
 
             // Preparamos la consulta
             String sql = "INSERT INTO Games (nombre, tiempoJugado) VALUES (?, ?)";
@@ -301,7 +301,7 @@ public class AccesoDatos {
                 try {
                     conn = ConexionDB.connect();
                     stmt = conn.createStatement();
-                    stmt.executeUpdate(use);
+                    stmt.executeUpdate(useDB);
                     String sql = "CREATE TABLE Compras(" +
                             "idCompra int Primary Key auto_increment," +
                             "idPlayer int," +
@@ -392,7 +392,7 @@ public class AccesoDatos {
         try {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
-            stmt.executeUpdate(use);
+            stmt.executeUpdate(useDB);
 
             // Preparamos la consulta
             String sql = "INSERT INTO Compras (idPlayer, idGame, cosa, precio, fechaCompra) VALUES (?, ?, ?, ?, ?)";
@@ -432,9 +432,9 @@ public class AccesoDatos {
         }
     }
 
-    
     /**
      * Verifica si existe una tabla en la base de datos
+     * 
      * @param nombreTabla nombre de la tabla a verificar
      * @return true si la tabla existe, false en caso contrario
      */
@@ -467,17 +467,18 @@ public class AccesoDatos {
 
     /**
      * Elimina una tabla de la base de datos
+     * 
      * @param nombreTabla nombre de la tabla a eliminar
      */
     public static void eliminarTabla(String nombreTabla) {
-        //TODO
+        // TODO
         if (AccesoDatos.tablaExiste(nombreTabla)) {
             Connection conn = null;
             Statement stmt = null;
             try {
                 conn = ConexionDB.connect();
                 stmt = conn.createStatement();
-                stmt.executeUpdate(use);
+                stmt.executeUpdate(useDB);
                 String sql = "DROP TABLE " + nombreTabla;
                 stmt.execute(sql);
                 System.out.println("Tabla " + nombreTabla + " eliminada.");
@@ -504,6 +505,12 @@ public class AccesoDatos {
         }
     }
 
+    /**
+     * Busca un jugador en la base de datos
+     * 
+     * @param nombre nombre del jugador a buscar
+     * @return Lista de jugadores
+     */
     public static List<Player> buscarPlayer(String nombre) {
         List<Player> players = new ArrayList<>();
         Connection conn = null;
@@ -511,7 +518,7 @@ public class AccesoDatos {
         try {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
-            stmt.executeUpdate(use);
+            stmt.executeUpdate(useDB);
             String sql = "SELECT * FROM Players WHERE nick LIKE '" + nombre + "%'";
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
@@ -540,5 +547,219 @@ public class AccesoDatos {
             }
         }
         return players;
+    }
+
+    /**
+     * Busca un juego en la base de datos
+     * 
+     * @param nombre nombre del juego a buscar
+     * @return Lista de juegos
+     */
+    public static List<Game> buscarGame(String nombre) {
+        List<Game> games = new ArrayList<>();
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "SELECT * FROM Games WHERE nombre LIKE '" + nombre + "%'";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String nombreJuego = rs.getString(2);
+                String tiempoJugado = rs.getString(3);
+
+                Game game = new Game(id, nombreJuego, tiempoJugado);
+                games.add(game);
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return games;
+    }
+
+    /**
+     * Inserta un jugador en la base de datos
+     * 
+     * @param player jugador a insertar
+     * @return boolean que determina si el jugador se ha insertado o no
+     */
+    public static boolean insertarPlayer(Player player) {
+        boolean insertado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        
+        // Comprobamos que no exista ya un player con esos datos
+        if (!existePlayer(player.getEmail())) {
+            try {
+                conn = ConexionDB.connect();
+                stmt = conn.createStatement();
+                stmt.executeUpdate(useDB);
+                String sql = "INSERT INTO Players (nick, password, email) VALUES (?, ?, ?)";
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, player.getNick());
+                ps.setString(2, player.getPassword());
+                ps.setString(3, player.getEmail());
+                ps.executeUpdate();
+                insertado = true;
+            } catch (SQLException se) {
+                se.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("Se ha producido un error.");
+            } finally {
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException se) {
+                    System.out.println("No se ha podido cerrar la conexión.");
+                }
+            }
+        }
+
+        return insertado;
+    }
+
+    /**
+     * Comprueba si un jugador existe en la base de datos
+     * 
+     * @param mail email del jugador a buscar
+     * @return boolean que determina si el jugador existe o no
+     */
+    private static boolean existePlayer(String mail) {
+        boolean existe = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "SELECT * FROM Players WHERE email = '" + mail + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                existe = true;
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return existe;
+    }
+
+    /**
+     * Inserta un juego en la base de datos.
+     * 
+     * @param game el juego a insertar, con nombre y tiempo jugado especificados.
+     * @return boolean que indica si el juego fue insertado correctamente.
+     */
+    public static boolean insertarGame(Game game) {
+        boolean insertado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "INSERT INTO Games (nombre, tiempoJugado) VALUES (?, ?)";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, game.getNombre());
+            ps.setString(2, game.getTiempoJugado());
+            ps.executeUpdate();
+            insertado = true;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+
+        return insertado;
+    }
+
+    /**
+     * Inserta una compra en la base de datos.
+     * 
+     * @param compra la compra a insertar, con idPlayer, idGame, cosa, precio y
+     *               fechaCompra
+     *               especificados.
+     * @return boolean que indica si la compra fue insertada correctamente.
+     */
+    public static boolean insertarCompra(Compra compra) {
+        boolean insertado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "INSERT INTO Compras (idPlayer, idGame, cosa, precio, fechaCompra) VALUES (?, ?, ?, ?, ?)";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, compra.getIdPlayer());
+            ps.setInt(2, compra.getIdGame());
+            ps.setString(3, compra.getCosa());
+            ps.setDouble(4, compra.getPrecio());
+            ps.setString(5, compra.getFecha() + " 00:00:00");
+            ps.executeUpdate();
+            insertado = true;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+
+        return insertado;
     }
 }
