@@ -603,7 +603,7 @@ public class AccesoDatos {
         Connection conn = null;
         Statement stmt = null;
         PreparedStatement ps = null;
-        
+
         // Comprobamos que no exista ya un player con esos datos
         if (!existePlayer(player.getEmail())) {
             try {
@@ -761,5 +761,280 @@ public class AccesoDatos {
         }
 
         return insertado;
+    }
+
+    /**
+     * Muestra una lista de jugadores que coinciden con los criterios de filtrado
+     * dados.
+     * 
+     * @param opcionFiltrar 1 si se quiere filtrar por nick, 2 si se quiere filtrar
+     *                      por email.
+     *                      Si no se especifica ninguno, se muestran todos los
+     *                      jugadores.
+     * @param valorFiltrar  el valor que se va a buscar en el campo correspondiente.
+     */
+    public static void listarPlayers(int opcionFiltrar, String valorFiltrar) {
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "SELECT * FROM Players";
+
+            // Construir la consulta con filtros si es necesario
+            if (opcionFiltrar == 1) {
+                sql += " WHERE nick LIKE ?";
+            } else if (opcionFiltrar == 2) {
+                sql += " WHERE email LIKE ?";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            if (opcionFiltrar == 1 || opcionFiltrar == 2) {
+                ps.setString(1, "%" + valorFiltrar + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            // Mostrar encabezado si hay resultados
+            boolean hayResultados = false;
+            while (rs.next()) {
+                if (!hayResultados) {
+                    System.out.printf("| %-10s | %-25s | %-15s %n", "ID", "Nombre", "Email");
+                    System.out.println("-".repeat(80));
+                    hayResultados = true;
+                }
+
+                int id = rs.getInt("idPlayer");
+                String nick = rs.getString("nick");
+                String email = rs.getString("email");
+                System.out.printf("| %-10s | %-25s | %-15s %n", id, nick, email);
+                System.out.println("-".repeat(80));
+            }
+
+            if (!hayResultados) {
+                System.out.println("No se encontraron resultados.");
+            }
+
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Muestra una lista de juegos que coinciden con los criterios de filtrado
+     * dados.
+     * 
+     * @param opcionFiltrar 1 si se quiere filtrar por nombre, 2 si se quiere
+     *                      filtrar
+     *                      por tiempo jugado. Si no se especifica ninguno, se
+     *                      muestran
+     *                      todos los juegos.
+     * @param valorFiltrar  el valor que se va a buscar en el campo correspondiente.
+     */
+
+    public static void listarGames(int opcionFiltrar, String valorFiltrar) {
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "SELECT * FROM Games";
+
+            // Construir la consulta con filtros si es necesario
+            if (opcionFiltrar == 1) {
+                sql += " WHERE nombre LIKE ?";
+            } else if (opcionFiltrar == 2) {
+                sql += " WHERE tiempoJugado LIKE ?";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            if (opcionFiltrar == 1 || opcionFiltrar == 2) {
+                ps.setString(1, "%" + valorFiltrar + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            // Mostrar encabezado si hay resultados
+            boolean hayResultados = false;
+            while (rs.next()) {
+                if (!hayResultados) {
+                    System.out.printf("| %-10s | %-25s | %-15s %n", "ID", "Nombre", "Tiempo Jugado");
+                    System.out.println("-".repeat(80));
+                    hayResultados = true;
+                }
+
+                int id = rs.getInt("idGame");
+                String nombre = rs.getString("nombre");
+                String tiempoJugado = rs.getString("tiempoJugado");
+                System.out.printf("| %-10s | %-25s | %-15s %n", id, nombre, tiempoJugado);
+                System.out.println("-".repeat(80));
+            }
+
+            if (!hayResultados) {
+                System.out.println("No se encontraron resultados.");
+            }
+
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Muestra una lista de compras que coinciden con los criterios de filtrado
+     * dados.
+     *
+     * @param opcionFiltrar 1 para filtrar por id de jugador, 2 para filtrar por id
+     *                      de juego,
+     *                      3 para filtrar por precio, 4 para filtrar por fecha de
+     *                      compra.
+     *                      Si no se especifica ninguno, se muestran todas las
+     *                      compras.
+     * @param valorFiltrar  el valor que se va a buscar en el campo correspondiente.
+     */
+
+    public static void listarCompras(int opcionFiltrar, String valorFiltrar) {
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "SELECT * FROM Compras";
+
+            // Construir la consulta con filtros si es necesario
+            if (opcionFiltrar == 1) {
+                sql += " WHERE cosa LIKE ?";
+            } else if (opcionFiltrar == 2) {
+                sql += " WHERE idPlayer = ?";
+            } else if (opcionFiltrar == 3) {
+                sql += " WHERE precio LIKE ?";
+            } else if (opcionFiltrar == 4) {
+                sql += " WHERE fechaCompra LIKE ?";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            System.out.println(valorFiltrar);
+
+            if (opcionFiltrar == 1 || opcionFiltrar == 3 || opcionFiltrar == 4) {
+                ps.setString(1, "%" + valorFiltrar + "%");
+            } else if (opcionFiltrar == 2) {
+                ps.setString(1, valorFiltrar);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            // Mostrar encabezado si hay resultados
+            boolean hayResultados = false;
+            while (rs.next()) {
+                if (!hayResultados) {
+                    System.out.printf("| %-10s | %-10s | %-10s | %-10s | %-10s %n", "ID", "Jugador", "Juego",
+                            "Precio", "Fecha de compra");
+                    System.out.println("-".repeat(80));
+                    hayResultados = true;
+                }
+
+                int id = rs.getInt("idCompra");
+                int idPlayer = rs.getInt("idPlayer");
+                String nombreJugador = buscarPlayerId(idPlayer).getNick();
+
+                double precio = rs.getDouble("precio");
+                String cosa = rs.getString("cosa");
+                String fecha = rs.getString("fechaCompra");
+                System.out.printf("| %-10s | %-10s | %-10s | %-10s | %-10s %n", id, nombreJugador, cosa, precio, fecha);
+                System.out.println("-".repeat(80));
+            }
+
+            if (!hayResultados) {
+                System.out.println("No se encontraron resultados.");
+            }
+
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+    }
+
+    /**
+     * Busca un jugador por su id en la base de datos
+     * 
+     * @param id id del jugador a buscar
+     * @return el jugador encontrado, o null si no se encontró
+     */
+    private static Player buscarPlayerId(int id) {
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        Player player = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            ps = conn.prepareStatement("SELECT * FROM Players where idPlayer = " + id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) { // Si se encuentra un resultado, crea y retorna el objeto Player
+                int idPlayer = rs.getInt("idPlayer");
+                String nick = rs.getString("nick");
+                String password = rs.getString("password");
+                String email = rs.getString("email");
+                player = new Player(idPlayer, nick, password, email);
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return player;
     }
 }
