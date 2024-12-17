@@ -1406,9 +1406,9 @@ public class Principal {
             do {
                 System.out.println();
                 System.out.println("¿Que quieres borrar?");
-                System.out.println("1. Jugador");
-                System.out.println("2. Juego");
-                System.out.println("3. Compra");
+                System.out.println("1. Players");
+                System.out.println("2. Games");
+                System.out.println("3. Compras");
                 System.out.println("4. Volver al menú principal");
 
                 try {
@@ -1439,126 +1439,229 @@ public class Principal {
 
     // Método que borrar un player
     private static void borrarPlayer() {
+        int opcion = -1;
         int idPlayer = -1;
         String nombre = "";
 
-        System.out.println();
-        System.out.println("Escribe el nombre del player que quieras borrar: ");
-        nombre = scanner.nextLine();
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Que quieres borrar?");
+                System.out.println("1. Un player");
+                System.out.println("2. Todos los players");
+                System.out.println("3. Volver al menú");
 
-        List<Player> players = AccesoDatos.buscarPlayer(nombre);
-
-        if (players.isEmpty()) {
-            System.out.println("No se ha encontrado ningun player con ese nombre");
-        } else {
-            // Si se ha encontrado al jugador, se muestra un mensaje y se elige al jugador
-            if (players.size() > 1) {
-                System.out.println("Se han encontrado los siguientes jugadores:");
-                System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
-                System.out.println("-".repeat(80));
-                for (int i = 0; i < players.size(); i++) {
-                    Player player = players.get(i);
-                    System.out.printf("| %-10s | %-25s | %-15s %n", i, player.getNick(), player.getEmail());
-                    System.out.println("-".repeat(80));
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
                 }
-                int jugadorElegido = -1;
-                do {
-                    System.out.println();
-                    System.out.println("Elige un jugador de los mostrados arriba");
-                    try {
-                        jugadorElegido = scanner.nextInt();
-                        scanner.nextLine();
-                    } catch (InputMismatchException e) {
-                        System.err.println("Introduzca un número");
-                        scanner.nextLine();
-                    }
-                } while (jugadorElegido < 0 || jugadorElegido >= players.size());
-                idPlayer = players.get(jugadorElegido).getIdPlayer();
-                System.out.println("Has seleccionado a " + players.get(jugadorElegido).getNick());
-            } else {
-                idPlayer = players.get(0).getIdPlayer();
-                System.out.println("Se ha seleccionado a " + players.get(0).getNick());
-            }
+            } while (opcion < 1 || opcion > 3);
 
-            if (AccesoDatos.borrarPlayer(idPlayer)) {
-                System.out.println("Player borrado");
-            } else {
-                System.out.println("No se ha podido borrar el player");
+            switch (opcion) {
+                case 1:
+                    System.out.println();
+                    System.out.println("Escribe el nombre del player que quieras borrar: ");
+                    nombre = scanner.nextLine();
+
+                    List<Player> players = AccesoDatos.buscarPlayer(nombre);
+
+                    if (players.isEmpty()) {
+                        System.out.println("No se ha encontrado ningun player con ese nombre");
+                    } else {
+                        // Si se ha encontrado al jugador, se muestra un mensaje y se elige al jugador
+                        if (players.size() > 1) {
+                            System.out.println("Se han encontrado los siguientes jugadores:");
+                            System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
+                            System.out.println("-".repeat(80));
+                            for (int i = 0; i < players.size(); i++) {
+                                Player player = players.get(i);
+                                System.out.printf("| %-10s | %-25s | %-15s %n", i, player.getNick(), player.getEmail());
+                                System.out.println("-".repeat(80));
+                            }
+                            int jugadorElegido = -1;
+                            do {
+                                System.out.println();
+                                System.out.println("Elige un jugador de los mostrados arriba");
+                                try {
+                                    jugadorElegido = scanner.nextInt();
+                                    scanner.nextLine();
+                                } catch (InputMismatchException e) {
+                                    System.err.println("Introduzca un número");
+                                    scanner.nextLine();
+                                }
+                            } while (jugadorElegido < 0 || jugadorElegido >= players.size());
+                            idPlayer = players.get(jugadorElegido).getIdPlayer();
+                            System.out.println("Has seleccionado a " + players.get(jugadorElegido).getNick());
+                        } else {
+                            idPlayer = players.get(0).getIdPlayer();
+                            System.out.println("Se ha seleccionado a " + players.get(0).getNick());
+                        }
+
+                        if (AccesoDatos.borrarPlayer(idPlayer)) {
+                            System.out.println("Player borrado");
+                        } else {
+                            System.out.println("No se ha podido borrar el player");
+                        }
+                    }
+                    break;
+
+                case 2:
+                    if (AccesoDatos.borrarPlayer(0)) {
+                        System.out.println("Players borrados");
+                    } else {
+                        System.out.println("No se han podido borrar los players");
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Volviendo...");
+                    break;
             }
-        }
+        } while (opcion != 3);
     }
 
     // Método que borra un game
     private static void borrarGame() {
+        int opcion = -1;
         int idGame = -1;
         String nombre = "";
 
-        System.out.println();
-        System.out.println("Escribe el nombre del juego que quieras borrar: ");
-        nombre = scanner.nextLine();
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Que quieres borrar?");
+                System.out.println("1. Un juego");
+                System.out.println("2. Todos los juegos");
+                System.out.println("3. Volver al menú");
 
-        List<Game> games = AccesoDatos.buscarGame(nombre);
-
-        if (games.isEmpty()) {
-            System.out.println("No se ha encontrado ningun juego con ese nombre");
-        } else {
-            // Si se ha encontrado el juego, se muestra un mensaje y se elige el juego
-            if (games.size() > 1) {
-                System.out.println("Se han encontrado los siguientes juegos:");
-                System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Tiempo jugado");
-                System.out.println("-".repeat(80));
-                for (int i = 0; i < games.size(); i++) {
-                    Game game = games.get(i);
-                    System.out.printf("| %-10s | %-25s | %-15s %n", i, game.getNombre(), game.getTiempoJugado());
-                    System.out.println("-".repeat(80));
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
                 }
-                int juegoElegido = -1;
-                do {
-                    System.out.println();
-                    System.out.println("Elige un juego de los mostrados arriba");
-                    try {
-                        juegoElegido = scanner.nextInt();
-                        scanner.nextLine();
-                    } catch (InputMismatchException e) {
-                        System.err.println("Introduzca un número");
-                        scanner.nextLine();
-                    }
-                } while (juegoElegido < 0 || juegoElegido >= games.size());
-                idGame = games.get(juegoElegido).getIdGame();
-            } else {
-                idGame = games.get(0).getIdGame();
-                System.out.println("Se ha seleccionado a " + games.get(0).getNombre());
-            }
+            } while (opcion < 1 || opcion > 3);
 
-            if (AccesoDatos.borrarGame(idGame)) {
-                System.out.println("Game borrado");
-            } else {
-                System.out.println("No se ha podido borrar el game");
+            switch (opcion) {
+                case 1:
+                    System.out.println();
+                    System.out.println("Escribe el nombre del juego que quieras borrar: ");
+                    nombre = scanner.nextLine();
+
+                    List<Game> games = AccesoDatos.buscarGame(nombre);
+
+                    if (games.isEmpty()) {
+                        System.out.println("No se ha encontrado ningun juego con ese nombre");
+                    } else {
+                        // Si se ha encontrado el juego, se muestra un mensaje y se elige el juego
+                        if (games.size() > 1) {
+                            System.out.println("Se han encontrado los siguientes juegos:");
+                            System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Tiempo jugado");
+                            System.out.println("-".repeat(80));
+                            for (int i = 0; i < games.size(); i++) {
+                                Game game = games.get(i);
+                                System.out.printf("| %-10s | %-25s | %-15s %n", i, game.getNombre(),
+                                        game.getTiempoJugado());
+                                System.out.println("-".repeat(80));
+                            }
+                            int juegoElegido = -1;
+                            do {
+                                System.out.println();
+                                System.out.println("Elige un juego de los mostrados arriba");
+                                try {
+                                    juegoElegido = scanner.nextInt();
+                                    scanner.nextLine();
+                                } catch (InputMismatchException e) {
+                                    System.err.println("Introduzca un número");
+                                    scanner.nextLine();
+                                }
+                            } while (juegoElegido < 0 || juegoElegido >= games.size());
+                            idGame = games.get(juegoElegido).getIdGame();
+                        } else {
+                            idGame = games.get(0).getIdGame();
+                            System.out.println("Se ha seleccionado a " + games.get(0).getNombre());
+                        }
+
+                        if (AccesoDatos.borrarGame(idGame)) {
+                            System.out.println("Game borrado");
+                        } else {
+                            System.out.println("No se ha podido borrar el game");
+                        }
+                    }
+                    break;
+                case 2:
+                    if (AccesoDatos.borrarGame(0)) {
+                        System.out.println("Games borrados");
+                    } else {
+                        System.out.println("No se han podido borrar los games");
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Volviendo...");
+                    break;
             }
-        }
+        } while (opcion != 3);
     }
 
     // Método que borra una compra
     private static void borrarCompra() {
+        int opcion = -1;
         int idCompra = -1;
 
         do {
-            System.out.println();
-            System.out.println("Escribe el id de la compra que quieras borrar: ");
-            try {
-                idCompra = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.err.println("Introduzca un número");
-            } finally {
-                scanner.nextLine();
-            }
-        } while (idCompra < 0);
 
-        if (AccesoDatos.borrarCompra(idCompra)) {
-            System.out.println("Compra borrada");
-        } else {
-            System.out.println("No se ha podido borrar la compra");
-        }
+            do {
+                System.out.println();
+                System.out.println("¿Que quieres borrar?");
+                System.out.println("1. Una compra");
+                System.out.println("2. Todas las compras");
+                System.out.println("3. Volver al menú");
+
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
+                }
+            } while (opcion < 1 || opcion > 3);
+
+            switch (opcion) {
+                case 1:
+                    System.out.println();
+                    System.out.println("Escribe el id de la compra que quieras borrar: ");
+                    try {
+                        idCompra = scanner.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.err.println("Introduzca un número");
+                    } finally {
+                        scanner.nextLine();
+                    }
+                    if (AccesoDatos.borrarCompra(idCompra)) {
+                        System.out.println("Compra borrada");
+                    } else {
+                        System.out.println("No se ha podido borrar la compra");
+                    }
+                    break;
+                case 2:
+                    if (AccesoDatos.borrarCompra(0)) {
+                        System.out.println("Compras borradas");
+                    } else {
+                        System.out.println("No se han podido borrar las compras");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Volviendo...");
+                    break;
+            }
+
+        } while (opcion != 3);
+        
     }
 
     // Método que pregunta que tabla quiere borrar
@@ -1585,33 +1688,16 @@ public class Principal {
 
             switch (opcion) {
                 case 1:
-                    if (AccesoDatos.borrarTabla("Player")) {
-                        System.out.println("Tabla Players borrada");
-                    } else {
-                        System.out.println("No se ha podido borrar la tabla Players");
-                    }
+                    AccesoDatos.borrarTabla("Players");
                     break;
                 case 2:
-                    if (AccesoDatos.borrarTabla("Game")) {
-                        System.out.println("Tabla Games borrada");
-                    } else {
-                        System.out.println("No se ha podido borrar la tabla Games");
-                    }
+                    AccesoDatos.borrarTabla("Games");
                     break;
                 case 3:
-                    if (AccesoDatos.borrarTabla("Compra")) {
-                        System.out.println("Tabla Compras borrada");
-                    } else {
-                        System.out.println("No se ha podido borrar la tabla Compras");
-                    }
-
+                    AccesoDatos.borrarTabla("Compras");
                     break;
                 case 4:
-                    if (AccesoDatos.borrarTablas()) {
-                        System.out.println("Tablas borradas");
-                    } else {
-                        System.out.println("No se han podido borrar las tablas");
-                    }
+                    AccesoDatos.borrarTablas();
                     break;
                 case 5:
                     System.out.println("Volviendo...");

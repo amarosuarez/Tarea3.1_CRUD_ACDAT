@@ -1219,7 +1219,11 @@ public class AccesoDatos {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
             stmt.executeUpdate(useDB);
-            String sql = "DELETE FROM Players WHERE idPlayer = " + idPlayer;
+            String sql = "DELETE FROM Players";
+
+            if (idPlayer > 0) {
+                sql += " WHERE idPlayer = " + idPlayer;
+            }
             stmt.executeUpdate(sql);
             borrado = true;
         } catch (SQLException se) {
@@ -1253,7 +1257,11 @@ public class AccesoDatos {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
             stmt.executeUpdate(useDB);
-            String sql = "DELETE FROM Games WHERE idGame = " + idGame;
+            String sql = "DELETE FROM Games";
+
+            if (idGame > 0) {
+                sql += " WHERE idGame = " + idGame;
+            }
             stmt.executeUpdate(sql);
             borrado = true;
         } catch (SQLException se) {
@@ -1287,7 +1295,12 @@ public class AccesoDatos {
             conn = ConexionDB.connect();
             stmt = conn.createStatement();
             stmt.executeUpdate(useDB);
-            String sql = "DELETE FROM Compras WHERE idCompra = " + idCompra;
+            String sql = "DELETE FROM Compras";
+            
+            if (idCompra > 0) {
+                sql += " WHERE idCompra = " + idCompra;
+            }
+
             stmt.executeUpdate(sql);
             borrado = true;
         } catch (SQLException se) {
@@ -1308,74 +1321,48 @@ public class AccesoDatos {
     }
 
     /**
-     * Borra todos los registros de una tabla en la base de datos.
+     * Borra una tabla de la base de datos.
      * 
-     * @param tabla nombre de la tabla de la que se eliminarán todos los registros.
-     * @return boolean que determina si los registros se han borrado correctamente o
-     *         no.
+     * @param tabla nombre de la tabla a borrar.
      */
-    public static boolean borrarTabla(String tabla) {
-        boolean borrado = false;
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = ConexionDB.connect();
-            stmt = conn.createStatement();
-            stmt.executeUpdate(useDB);
-            String sql = "DELETE FROM " + tabla;
-            stmt.executeUpdate(sql);
-            borrado = true;
-        } catch (SQLException se) {
-            // se.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Se ha producido un error.");
-        } finally {
+    public static void borrarTabla(String tabla) {
+        if (AccesoDatos.tablaExiste(tabla)) {
+            Connection conn = null;
+            Statement stmt = null;
             try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
+                conn = ConexionDB.connect();
+                stmt = conn.createStatement();
+                stmt.executeUpdate(useDB);
+                String sql = "DROP TABLE " + tabla;
+                stmt.executeUpdate(sql);
+                System.out.println("Tabla " + tabla + " borrada correctamente.");
             } catch (SQLException se) {
-                System.out.println("No se ha podido cerrar la conexión.");
+                System.out.println("No se ha podido borrar la tabla " + tabla + ". " + se.getMessage());
+            } catch (Exception e) {
+                System.out.println("Se ha producido un error.");
+            } finally {
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException se) {
+                    System.out.println("No se ha podido cerrar la conexión.");
+                }
             }
+        } else {
+            System.out.println("La tabla " + tabla + " no existe.");
         }
-
-        return borrado;
     }
 
     /**
      * Borra todas las tablas de la base de datos.
-     * 
-     * @return boolean que determina si las tablas se han borrado correctamente o
-     *         no.
      */
-    public static boolean borrarTablas() {
-        boolean borrado = false;
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = ConexionDB.connect();
-            stmt = conn.createStatement();
-            stmt.executeUpdate(useDB);
-            String sql = "DELETE FROM Compras; DELETE FROM Players; DELETE FROM Games;";
-            stmt.executeUpdate(sql);
-            borrado = true;
-        } catch (SQLException se) {
-            // se.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Se ha producido un error.");
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException se) {
-                System.out.println("No se ha podido cerrar la conexión.");
-            }
-        }
-        return borrado;
+    public static void borrarTablas() {
+        AccesoDatos.borrarTabla("Compras");
+        AccesoDatos.borrarTabla("Players");
+        AccesoDatos.borrarTabla("Games");
     }
 }
