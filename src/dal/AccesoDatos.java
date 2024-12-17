@@ -1306,4 +1306,76 @@ public class AccesoDatos {
         }
         return borrado;
     }
+
+    /**
+     * Borra todos los registros de una tabla en la base de datos.
+     * 
+     * @param tabla nombre de la tabla de la que se eliminarán todos los registros.
+     * @return boolean que determina si los registros se han borrado correctamente o
+     *         no.
+     */
+    public static boolean borrarTabla(String tabla) {
+        boolean borrado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "DELETE FROM " + tabla;
+            stmt.executeUpdate(sql);
+            borrado = true;
+        } catch (SQLException se) {
+            // se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+
+        return borrado;
+    }
+
+    /**
+     * Borra todas las tablas de la base de datos.
+     * 
+     * @return boolean que determina si las tablas se han borrado correctamente o
+     *         no.
+     */
+    public static boolean borrarTablas() {
+        boolean borrado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "DELETE FROM Compras; DELETE FROM Players; DELETE FROM Games;";
+            stmt.executeUpdate(sql);
+            borrado = true;
+        } catch (SQLException se) {
+            // se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return borrado;
+    }
 }

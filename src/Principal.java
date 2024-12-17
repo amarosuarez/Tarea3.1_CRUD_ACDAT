@@ -96,6 +96,7 @@ public class Principal {
                 borrar();
                 break;
             case 7:
+                borrarTablas();
                 break;
             case 8:
                 System.out.println();
@@ -1558,5 +1559,64 @@ public class Principal {
         } else {
             System.out.println("No se ha podido borrar la compra");
         }
+    }
+
+    // Método que pregunta que tabla quiere borrar
+    private static void borrarTablas() {
+        int opcion = -1;
+
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Que quieres borrar?");
+                System.out.println("1. Players");
+                System.out.println("2. Games");
+                System.out.println("3. Compras");
+                System.out.println("4. Todas");
+                System.out.println("5. Volver al menú principal");
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
+                }
+            } while (opcion < 0 || opcion > 5);
+
+            switch (opcion) {
+                case 1:
+                    if (AccesoDatos.borrarTabla("Player")) {
+                        System.out.println("Tabla Players borrada");
+                    } else {
+                        System.out.println("No se ha podido borrar la tabla Players");
+                    }
+                    break;
+                case 2:
+                    if (AccesoDatos.borrarTabla("Game")) {
+                        System.out.println("Tabla Games borrada");
+                    } else {
+                        System.out.println("No se ha podido borrar la tabla Games");
+                    }
+                    break;
+                case 3:
+                    if (AccesoDatos.borrarTabla("Compra")) {
+                        System.out.println("Tabla Compras borrada");
+                    } else {
+                        System.out.println("No se ha podido borrar la tabla Compras");
+                    }
+
+                    break;
+                case 4:
+                    if (AccesoDatos.borrarTablas()) {
+                        System.out.println("Tablas borradas");
+                    } else {
+                        System.out.println("No se han podido borrar las tablas");
+                    }
+                    break;
+                case 5:
+                    System.out.println("Volviendo...");
+                    break;
+            }
+        } while (opcion != 5);
     }
 }
