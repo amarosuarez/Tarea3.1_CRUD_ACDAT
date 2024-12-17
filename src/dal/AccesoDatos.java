@@ -1204,4 +1204,106 @@ public class AccesoDatos {
         }
         return modificado;
     }
+
+    /**
+     * Borra un jugador de la base de datos.
+     * 
+     * @param idPlayer id del jugador a borrar.
+     * @return boolean que determina si se ha borrado correctamente o no.
+     */
+    public static boolean borrarPlayer(int idPlayer) {
+        boolean borrado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "DELETE FROM Players WHERE idPlayer = " + idPlayer;
+            stmt.executeUpdate(sql);
+            borrado = true;
+        } catch (SQLException se) {
+            // se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return borrado;
+    }
+
+    /**
+     * Borra un juego de la base de datos.
+     * 
+     * @param idGame id del juego a borrar.
+     * @return boolean que determina si se ha borrado correctamente o no.
+     */
+    public static boolean borrarGame(int idGame) {
+        boolean borrado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "DELETE FROM Games WHERE idGame = " + idGame;
+            stmt.executeUpdate(sql);
+            borrado = true;
+        } catch (SQLException se) {
+            // se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return borrado;
+    }
+
+    /**
+     * Borra una compra de la base de datos.
+     * 
+     * @param idCompra id de la compra a borrar.
+     * @return boolean que determina si se ha borrado correctamente o no.
+     */
+    public static boolean borrarCompra(int idCompra) {
+        boolean borrado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "DELETE FROM Compras WHERE idCompra = " + idCompra;
+            stmt.executeUpdate(sql);
+            borrado = true;
+        } catch (SQLException se) {
+            // se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return borrado;
+    }
 }
