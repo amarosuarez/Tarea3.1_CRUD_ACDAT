@@ -167,7 +167,7 @@ public class AccesoDatos {
                 String sql = "CREATE TABLE Games(" +
                         "idGame int Primary Key auto_increment," +
                         "nombre varchar(45)," +
-                        "tiempoJugado TIME);";
+                        "tiempoJugado varchar(50));";
                 stmt.execute(sql);
                 System.out.println("Tabla GAMES creada");
             } catch (SQLException se) {
@@ -877,7 +877,7 @@ public class AccesoDatos {
             boolean hayResultados = false;
             while (rs.next()) {
                 if (!hayResultados) {
-                    System.out.printf("| %-10s | %-25s | %-15s %n", "ID", "Nombre", "Tiempo Jugado");
+                    System.out.printf("| %-10s | %-40s | %-15s %n", "ID", "Nombre", "Tiempo Jugado");
                     System.out.println("-".repeat(80));
                     hayResultados = true;
                 }
@@ -885,7 +885,7 @@ public class AccesoDatos {
                 int id = rs.getInt("idGame");
                 String nombre = rs.getString("nombre");
                 String tiempoJugado = rs.getString("tiempoJugado");
-                System.out.printf("| %-10s | %-25s | %-15s %n", id, nombre, tiempoJugado);
+                System.out.printf("| %-10s | %-40s | %-15s %n", id, nombre, tiempoJugado);
                 System.out.println("-".repeat(80));
             }
 
@@ -946,8 +946,6 @@ public class AccesoDatos {
 
             ps = conn.prepareStatement(sql);
 
-            System.out.println(valorFiltrar);
-
             if (opcionFiltrar == 1 || opcionFiltrar == 3 || opcionFiltrar == 4) {
                 ps.setString(1, "%" + valorFiltrar + "%");
             } else if (opcionFiltrar == 2) {
@@ -960,9 +958,9 @@ public class AccesoDatos {
             boolean hayResultados = false;
             while (rs.next()) {
                 if (!hayResultados) {
-                    System.out.printf("| %-10s | %-10s | %-10s | %-10s | %-10s %n", "ID", "Jugador", "Juego",
+                    System.out.printf("| %-10s | %-10s | %-40s | %-10s | %-10s %n", "ID", "Jugador", "Juego",
                             "Precio", "Fecha de compra");
-                    System.out.println("-".repeat(80));
+                    System.out.println("-".repeat(100));
                     hayResultados = true;
                 }
 
@@ -973,8 +971,8 @@ public class AccesoDatos {
                 double precio = rs.getDouble("precio");
                 String cosa = rs.getString("cosa");
                 String fecha = rs.getString("fechaCompra");
-                System.out.printf("| %-10s | %-10s | %-10s | %-10s | %-10s %n", id, nombreJugador, cosa, precio, fecha);
-                System.out.println("-".repeat(80));
+                System.out.printf("| %-10s | %-10s | %-40s | %-10s | %-10s %n", id, nombreJugador, cosa, precio, fecha);
+                System.out.println("-".repeat(100));
             }
 
             if (!hayResultados) {
@@ -1036,5 +1034,174 @@ public class AccesoDatos {
             }
         }
         return player;
+    }
+
+    /**
+     * Modifica un jugador en la base de datos
+     * 
+     * @param opcion   1 si se quiere modificar el nick, 2 si se quiere modificar el
+     *                 email, 3 si se
+     *                 quiere modificar la contraseña
+     * @param valor    el nuevo valor para el campo especificado
+     * @param idPlayer id del jugador a modificar
+     * @return boolean que determina si se ha modificado correctamente o no
+     */
+    public static boolean modificarPlayer(int opcion, String valor, int idPlayer) {
+        boolean modificado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "UPDATE Players SET ";
+
+            if (opcion == 1) {
+                sql += "nick = ?";
+            } else if (opcion == 2) {
+                sql += "email = ?";
+            } else if (opcion == 3) {
+                sql += "password = ?";
+            }
+
+            sql += " WHERE idPlayer = " + idPlayer;
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, valor);
+            ps.executeUpdate();
+            modificado = true;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return modificado;
+    }
+
+    /**
+     * Modifica un juego en la base de datos.
+     * 
+     * @param opcion 1 si se quiere modificar el nombre, 2 si se quiere modificar
+     *               el tiempo jugado.
+     * @param valor  el nuevo valor para el campo especificado.
+     * @param idGame id del juego a modificar.
+     * @return boolean que determina si se ha modificado correctamente o no.
+     */
+    public static boolean modificarGame(int opcion, String valor, int idGame) {
+        boolean modificado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "UPDATE Games SET ";
+
+            if (opcion == 1) {
+                sql += "nombre = ?";
+            } else if (opcion == 2) {
+                sql += "tiempoJugado = ?";
+            }
+
+            sql += " WHERE idGame = " + idGame;
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, valor);
+            ps.executeUpdate();
+            modificado = true;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return modificado;
+    }
+
+    /**
+     * Modifica una compra en la base de datos
+     * 
+     * @param opcion   1 si se quiere modificar el id del jugador, 2 si se
+     *                 quiere modificar el id del juego, 3 si se
+     *                 quiere modificar la cosa, 4 si se
+     *                 quiere modificar el precio, 5 si se
+     *                 quiere modificar la fecha de la compra
+     * @param valor    el nuevo valor para el campo especificado
+     * @param idCompra id de la compra a modificar
+     * @return boolean que determina si se ha modificado correctamente o no
+     */
+    public static boolean modificarCompra(int opcion, String valor, int idCompra) {
+        boolean modificado = false;
+        Connection conn = null;
+        Statement stmt = null;
+        PreparedStatement ps = null;
+        try {
+            conn = ConexionDB.connect();
+            stmt = conn.createStatement();
+            stmt.executeUpdate(useDB);
+            String sql = "UPDATE Compras SET ";
+
+            if (opcion == 1) {
+                sql += "idPlayer = ?";
+            } else if (opcion == 2) {
+                sql += "idGame = ?, cosa = ?";
+            } else if (opcion == 3) {
+                sql += "precio = ?";
+            } else if (opcion == 4) {
+                sql += "fechaCompra = ?";
+            }
+
+            sql += " WHERE idCompra = " + idCompra;
+
+            ps = conn.prepareStatement(sql);
+
+            if (opcion == 1) {
+                ps.setInt(1, Integer.parseInt(valor));
+            } else if (opcion == 2) {
+                String[] values = valor.split(":");
+                ps.setInt(1, Integer.parseInt(values[1]));
+                ps.setString(2, values[0]);
+            } else if (opcion == 3) {
+                ps.setDouble(1, Double.parseDouble(valor));
+            } else if (opcion == 4) {
+                ps.setString(1, valor);
+            }
+
+            ps.executeUpdate();
+            modificado = true;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error.");
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                System.out.println("No se ha podido cerrar la conexión.");
+            }
+        }
+        return modificado;
     }
 }

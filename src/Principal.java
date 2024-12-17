@@ -90,6 +90,7 @@ public class Principal {
                 listar();
                 break;
             case 5:
+                modificar();
                 break;
             case 6:
                 break;
@@ -282,7 +283,6 @@ public class Principal {
 
     // Pide los datos de un jugador
     private static Player pideDatosPlayer() {
-        scanner.nextLine();
         String nombre = "";
         String password = "";
         String email = "";
@@ -312,8 +312,6 @@ public class Principal {
 
     // Pide los datos de un juego
     private static Game pideDatosGame() {
-        scanner.nextLine();
-
         String nombreJuego = "";
         String horaJuego = "";
         int horas = -1;
@@ -369,8 +367,6 @@ public class Principal {
 
     // Pide los datos de una Compra
     private static Compra pideDatosCompra() {
-        scanner.nextLine();
-
         boolean jugadorEncontrado = false;
         boolean juegoEncontrado = false;
         int idGame = -1;
@@ -385,18 +381,24 @@ public class Principal {
         String date = "";
         boolean diaCorrecto = false;
 
+        // Pide el nombre del jugador
         do {
             System.out.println();
             System.out.println("Nombre del jugador?");
             nombreJugador = scanner.nextLine();
 
+            // Busca al jugador en la BD
             List<Player> players = AccesoDatos.buscarPlayer(nombreJugador);
 
+            // Si no se ha encontrado al jugador
             jugadorEncontrado = players.isEmpty();
 
+            // Si no se ha encontrado al jugador, se muestra un mensaje y se vuelve a pedir
+            // el nombre del jugador
             if (players.isEmpty()) {
                 System.out.println("No se ha encontrado ningún jugador con ese nombre");
             } else {
+                // Si se ha encontrado al jugador, se muestra un mensaje y se elige al jugador
                 if (players.size() > 1) {
                     System.out.println("Se han encontrado los siguientes jugadores:");
                     System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
@@ -419,8 +421,10 @@ public class Principal {
                         }
                     } while (jugadorElegido < 0 || jugadorElegido >= players.size());
                     idPlayer = players.get(jugadorElegido).getIdPlayer();
+                    System.out.println("Has seleccionado a " + players.get(jugadorElegido).getNick());
                 } else {
                     idPlayer = players.get(0).getIdPlayer();
+                    System.out.println("Se ha seleccionado a " + players.get(0).getNick());
                 }
             }
         } while (jugadorEncontrado);
@@ -459,9 +463,11 @@ public class Principal {
                     } while (juegoElegido < 0 || juegoElegido >= games.size());
                     idGame = games.get(juegoElegido).getIdGame();
                     cosa = games.get(juegoElegido).getNombre();
+                    System.out.println("Has seleccionado el juego " + games.get(juegoElegido).getNombre());
                 } else {
                     idGame = games.get(0).getIdGame();
                     cosa = games.get(0).getNombre();
+                    System.out.println("Se ha seleccionado " + games.get(0).getNombre());
                 }
             } else {
                 System.out.println("No se ha encontrado ningú juego con ese nombre");
@@ -597,9 +603,9 @@ public class Principal {
         do {
             try {
                 opcion = scanner.nextInt();
-                scanner.nextLine();
             } catch (InputMismatchException e) {
                 System.err.println("Introduzca un número");
+            } finally {
                 scanner.nextLine();
             }
         } while (opcion < 1 || opcion > 3);
@@ -610,6 +616,7 @@ public class Principal {
                 System.out.println("Introduce el nombre: ");
                 nombre = scanner.nextLine();
 
+                System.out.println();
                 AccesoDatos.listarPlayers(1, nombre);
                 break;
             case 2:
@@ -617,9 +624,11 @@ public class Principal {
                 System.out.println("Introduce el email: ");
                 email = scanner.nextLine();
 
+                System.out.println();
                 AccesoDatos.listarPlayers(2, email);
                 break;
             case 3:
+                System.out.println();
                 AccesoDatos.listarPlayers(0, email);
                 break;
         }
@@ -643,9 +652,9 @@ public class Principal {
         do {
             try {
                 opcion = scanner.nextInt();
-                scanner.nextLine();
             } catch (InputMismatchException e) {
                 System.err.println("Introduzca un número");
+            } finally {
                 scanner.nextLine();
             }
         } while (opcion < 1 || opcion > 3);
@@ -656,6 +665,7 @@ public class Principal {
                 System.out.println("Introduce el nombre: ");
                 nombre = scanner.nextLine();
 
+                System.out.println();
                 AccesoDatos.listarGames(1, nombre);
                 break;
             case 2:
@@ -665,9 +675,9 @@ public class Principal {
                 do {
                     try {
                         horas = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (horas < 0);
@@ -678,9 +688,9 @@ public class Principal {
                 do {
                     try {
                         minutos = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (minutos < 0 && minutos > 59);
@@ -691,18 +701,21 @@ public class Principal {
                 do {
                     try {
                         segundos = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (segundos < 0 && segundos > 59);
 
-                horasJugadas = horas + ":" + minutos + ":" + segundos;
+                horasJugadas = (horas < 10 ? "0" + horas : horas) + ":" + (minutos < 10 ? "0" + minutos : minutos) + ":"
+                        + (segundos < 10 ? "0" + segundos : segundos);
 
+                System.out.println();
                 AccesoDatos.listarGames(2, horasJugadas);
                 break;
             case 3:
+                System.out.println();
                 AccesoDatos.listarGames(0, "");
                 break;
         }
@@ -730,9 +743,9 @@ public class Principal {
         do {
             try {
                 opcion = scanner.nextInt();
-                scanner.nextLine();
             } catch (InputMismatchException e) {
                 System.err.println("Introduzca un número");
+            } finally {
                 scanner.nextLine();
             }
         } while (opcion < 1 || opcion > 5);
@@ -742,6 +755,7 @@ public class Principal {
                 System.out.println();
                 System.out.println("Introduce el nombre del juego: ");
                 nombreJuego = scanner.nextLine();
+                System.out.println();
                 AccesoDatos.listarCompras(1, nombreJuego);
                 break;
             case 2:
@@ -774,9 +788,9 @@ public class Principal {
                                 System.out.println("Elige un jugador de los mostrados arriba");
                                 try {
                                     jugadorElegido = scanner.nextInt();
-                                    scanner.nextLine();
                                 } catch (InputMismatchException e) {
                                     System.err.println("Introduzca un número");
+                                } finally {
                                     scanner.nextLine();
                                 }
                             } while (jugadorElegido < 0 || jugadorElegido >= players.size());
@@ -787,6 +801,7 @@ public class Principal {
                     }
                 } while (jugadorEncontrado);
 
+                System.out.println();
                 AccesoDatos.listarCompras(2, String.valueOf(idPlayer));
 
                 break;
@@ -796,13 +811,14 @@ public class Principal {
                     System.out.println("Introduce el precio: ");
                     try {
                         precio = scanner.nextDouble();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (precio < 0);
 
+                System.out.println();
                 AccesoDatos.listarCompras(3, Double.toString(precio));
                 break;
             case 4:
@@ -811,9 +827,9 @@ public class Principal {
                     System.out.println("Introduce el año: ");
                     try {
                         anyo = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (anyo < 0 || anyo > Year.now().getValue());
@@ -823,9 +839,9 @@ public class Principal {
                     System.out.println("Introduce el mes: ");
                     try {
                         mes = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
                 } while (mes < 1 || mes > 12);
@@ -836,9 +852,9 @@ public class Principal {
                     System.out.println("Introduce el dia: ");
                     try {
                         dia = scanner.nextInt();
-                        scanner.nextLine();
                     } catch (InputMismatchException e) {
                         System.err.println("Introduzca un número");
+                    } finally {
                         scanner.nextLine();
                     }
 
@@ -864,12 +880,519 @@ public class Principal {
                 } while (!diaCorrecto);
 
                 date = anyo + "-" + mes + "-" + dia;
+                System.out.println();
                 AccesoDatos.listarCompras(4, date);
 
                 break;
             case 5:
+                System.out.println();
                 AccesoDatos.listarCompras(0, "");
                 break;
         }
+    }
+
+    // Método para modificar datos
+    private static void modificar() {
+        int opcion = -1;
+
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Qué quieres modificar?");
+                System.out.println("1. Player");
+                System.out.println("2. Game");
+                System.out.println("3. Compra");
+                System.out.println("4. Volver al menú principal");
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
+                }
+
+            } while (opcion < 1 || opcion > 4);
+
+            switch (opcion) {
+                case 1:
+                    modificarPlayer();
+                    break;
+                case 2:
+                    modificarGame();
+                    break;
+                case 3:
+                    modificarCompra();
+                    break;
+                case 4:
+                    System.out.println("Volviendo...");
+                    break;
+            }
+        } while (opcion != 4);
+    }
+
+    // Método que modifica un player
+    private static void modificarPlayer() {
+        int opcion = -1;
+        int idPlayer = -1;
+        List<Player> players;
+        String nombre = "";
+        String password = "";
+        String email = "";
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el nombre del jugador que quieres modificar:");
+            nombre = scanner.nextLine();
+
+            players = AccesoDatos.buscarPlayer(nombre);
+
+            if (players.size() > 0) {
+                // Si se ha encontrado al jugador, se muestra un mensaje y se elige al jugador
+                if (players.size() > 1) {
+                    System.out.println("Se han encontrado los siguientes jugadores:");
+                    System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
+                    System.out.println("-".repeat(80));
+                    for (int i = 0; i < players.size(); i++) {
+                        Player player = players.get(i);
+                        System.out.printf("| %-10s | %-25s | %-15s %n", i, player.getNick(), player.getEmail());
+                        System.out.println("-".repeat(80));
+                    }
+                    int jugadorElegido = -1;
+                    do {
+                        System.out.println();
+                        System.out.println("Elige un jugador de los mostrados arriba");
+                        try {
+                            jugadorElegido = scanner.nextInt();
+                            scanner.nextLine();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                            scanner.nextLine();
+                        }
+                    } while (jugadorElegido < 0 || jugadorElegido >= players.size());
+                    idPlayer = players.get(jugadorElegido).getIdPlayer();
+                    System.out.println("Has seleccionado a " + players.get(jugadorElegido).getNick());
+                } else {
+                    idPlayer = players.get(0).getIdPlayer();
+                    System.out.println("Se ha seleccionado a " + players.get(0).getNick());
+                }
+            } else {
+                System.out.println("No se ha encontrado ningún jugador con ese nombre.");
+            }
+        } while (idPlayer < 0);
+
+        do {
+            System.out.println();
+            System.out.println("¿Qué quieres modificar?");
+            System.out.println("1. Nombre");
+            System.out.println("2. Email");
+            System.out.println("3. Contraseña");
+            System.out.println("4. Volver al menú");
+
+            try {
+                opcion = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+            } finally {
+                scanner.nextLine();
+            }
+        } while (opcion < 1 || opcion > 4);
+
+        System.out.println();
+        switch (opcion) {
+            case 1:
+                System.out.println("Introduce el nuevo nombre: ");
+                nombre = scanner.nextLine();
+
+                if (AccesoDatos.modificarPlayer(1, nombre, idPlayer)) {
+                    System.out.println("Nombre modificado");
+                } else {
+                    System.out.println("No se ha podido modificar el nombre");
+                }
+                break;
+            case 2:
+                System.out.println("Introduce el nuevo email: ");
+                email = scanner.nextLine();
+
+                if (AccesoDatos.modificarPlayer(2, email, idPlayer)) {
+                    System.out.println("Email modificado");
+                } else {
+                    System.out.println("No se ha podido modificar el email");
+                }
+                break;
+            case 3:
+                System.out.println("Introduce la nueva contraseña: ");
+                password = scanner.nextLine();
+
+                if (AccesoDatos.modificarPlayer(3, password, idPlayer)) {
+                    System.out.println("Contraseña modificada");
+                } else {
+                    System.out.println("No se ha podido modificar la contraseña");
+                }
+                break;
+            case 4:
+                System.out.println("Volviendo...");
+                break;
+        }
+    }
+
+    // Método que modifica un game
+    private static void modificarGame() {
+        int opcion = -1;
+        String nombre = "";
+        int horas = -1;
+        int minutos = -1;
+        int segundos = -1;
+        int idGame = -1;
+        String horasJugadas = "";
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el nombre del juego que quieres modificar:");
+            nombre = scanner.nextLine();
+
+            List<Game> games = AccesoDatos.buscarGame(nombre);
+
+            if (games.size() > 0) {
+                if (games.size() > 1) {
+                    System.out.println("Se han encontrado los siguientes juegos:");
+                    System.out.printf("| %-10s | %-40s %n", "Número", "Nombre");
+                    System.out.println("-".repeat(80));
+                    for (int i = 0; i < games.size(); i++) {
+                        Game game = games.get(i);
+                        System.out.printf("| %-10s | %-40s %n", i, game.getNombre());
+                        System.out.println("-".repeat(80));
+                    }
+
+                    int juegoElegido = -1;
+                    do {
+                        System.out.println();
+                        System.out.println("Elige un juego de los mostrados arriba");
+                        try {
+                            juegoElegido = scanner.nextInt();
+                            scanner.nextLine();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                            scanner.nextLine();
+                        }
+                    } while (juegoElegido < 0 || juegoElegido >= games.size());
+                    idGame = games.get(juegoElegido).getIdGame();
+                } else {
+                    idGame = games.get(0).getIdGame();
+                    System.out.println("Se ha seleccionado " + games.get(0).getNombre());
+                }
+            } else {
+                System.out.println("No se ha encontrado ningun juego con ese nombre.");
+            }
+        } while (idGame < 0);
+
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Qué quieres modificar?");
+                System.out.println("1. Nombre");
+                System.out.println("2. Tiempo Jugado");
+                System.out.println("3. Volver al menú");
+
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
+                }
+            } while (opcion < 1 || opcion > 3);
+
+            System.out.println();
+            switch (opcion) {
+                case 1:
+                    System.out.println("Introduce el nuevo nombre:");
+                    nombre = scanner.nextLine();
+
+                    if (AccesoDatos.modificarGame(1, nombre, idGame)) {
+                        System.out.println("Nombre modificado");
+                    } else {
+                        System.out.println("No se ha podido modificar el nombre");
+                    }
+                    break;
+                case 2:
+                    do {
+                        System.out.println("Introduce las horas:");
+                        try {
+                            horas = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (horas < 0);
+
+                    System.out.println();
+                    do {
+                        System.out.println("Introduce los minutos:");
+                        try {
+                            minutos = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (minutos < 0 || minutos > 59);
+
+                    System.out.println();
+                    do {
+                        System.out.println("Introduce los segundos:");
+                        try {
+                            segundos = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (segundos < 0 || segundos > 59);
+
+                    horasJugadas = (horas > 10 ? horas : "0" + horas) + ":" + (minutos > 10 ? minutos : "0" + minutos)
+                            + ":" + (segundos > 10 ? segundos : "0" + segundos);
+
+                    if (AccesoDatos.modificarGame(2, horasJugadas, idGame)) {
+                        System.out.println("Tiempo jugado modificado");
+                    } else {
+                        System.out.println("No se ha podido modificar el tiempo jugado");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Volviendo...");
+                    break;
+            }
+        } while (opcion != 3);
+    }
+
+    // Método que modifica una compra
+    private static void modificarCompra() {
+        int opcion = -1;
+        int idCompra = -1;
+        int idPlayer = -1;
+        int idGame = -1;
+        String cosa = "";
+        double precio = -1;
+        int dia = -1;
+        int mes = -1;
+        int anyo = -1;
+        String date = "";
+
+        do {
+            System.out.println();
+            System.out.println("Introduce el id de la compra:");
+            try {
+                idCompra = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.err.println("Introduzca un número");
+            } finally {
+                scanner.nextLine();
+            }
+        } while (idCompra < 0);
+
+        do {
+            do {
+                System.out.println();
+                System.out.println("¿Qué quieres modificar?");
+                System.out.println("1. Jugador");
+                System.out.println("2. Juego");
+                System.out.println("3. Precio");
+                System.out.println("4. Fecha");
+                System.out.println("5. Volver al menú");
+
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Introduzca un número");
+                } finally {
+                    scanner.nextLine();
+                }
+            } while (opcion < 1 || opcion > 5);
+
+            System.out.println();
+            switch (opcion) {
+                case 1:
+                    System.out.println("Introduce el nombre del jugador:");
+                    String nombre = "";
+                    nombre = scanner.nextLine();
+
+                    List<Player> players = AccesoDatos.buscarPlayer(nombre);
+
+                    if (players.isEmpty()) {
+                        System.out.println("No se ha encontrado ningun jugador con ese nombre.");
+                    } else {
+                        if (players.size() > 1) {
+                            System.out.println("Se han encontrado los siguientes jugadores:");
+                            System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Email");
+                            System.out.println("-".repeat(80));
+                            for (int i = 0; i < players.size(); i++) {
+                                Player player = players.get(i);
+                                System.out.printf("| %-10s | %-25s | %-15s %n", i, player.getNick(), player.getEmail());
+                                System.out.println("-".repeat(80));
+                            }
+                            int jugadorElegido = -1;
+                            do {
+                                System.out.println();
+                                System.out.println("Elige un jugador de los mostrados arriba");
+                                try {
+                                    jugadorElegido = scanner.nextInt();
+                                    scanner.nextLine();
+                                } catch (InputMismatchException e) {
+                                    System.err.println("Introduzca un número");
+                                    scanner.nextLine();
+                                }
+                            } while (jugadorElegido < 0 || jugadorElegido >= players.size());
+                            idPlayer = players.get(jugadorElegido).getIdPlayer();
+                        } else {
+                            idPlayer = players.get(0).getIdPlayer();
+                            System.out.println("Se ha seleccionado a " + players.get(0).getNick());
+                        }
+                    }
+
+                    if (AccesoDatos.modificarCompra(1, String.valueOf(idPlayer), idCompra)) {
+                        System.out.println("Jugador modificado");
+                    } else {
+                        System.out.println("No se ha podido modificar el jugador");
+                    }
+                    break;
+                case 2:
+                    System.out.println("Introduce el nombre del juego:");
+                    String nombreJuego = "";
+                    nombreJuego = scanner.nextLine();
+
+                    List<Game> juegos = AccesoDatos.buscarGame(nombreJuego);
+
+                    if (juegos.isEmpty()) {
+                        System.out.println("No se ha encontrado ningun juego con ese nombre.");
+                    } else {
+                        if (juegos.size() > 1) {
+                            System.out.println("Se han encontrado los siguientes juegos:");
+                            System.out.printf("| %-10s | %-25s | %-15s %n", "Número", "Nombre", "Tiempo jugado");
+                            System.out.println("-".repeat(80));
+                            for (int i = 0; i < juegos.size(); i++) {
+                                Game game = juegos.get(i);
+                                System.out.printf("| %-10s | %-25s | %-15s %n", i, game.getNombre(),
+                                        game.getTiempoJugado());
+                                System.out.println("-".repeat(80));
+                            }
+                            int juegoElegido = -1;
+                            do {
+                                System.out.println();
+                                System.out.println("Elige un juego de los mostrados arriba");
+                                try {
+                                    juegoElegido = scanner.nextInt();
+                                } catch (InputMismatchException e) {
+                                    System.err.println("Introduzca un número");
+                                } finally {
+                                    scanner.nextLine();
+                                }
+                            } while (juegoElegido < 0 || juegoElegido >= juegos.size());
+                            idGame = juegos.get(juegoElegido).getIdGame();
+                            cosa = juegos.get(juegoElegido).getNombre();
+                        } else {
+                            idGame = juegos.get(0).getIdGame();
+                            cosa = juegos.get(0).getNombre();
+                            System.out.println("Se ha seleccionado el juego " + juegos.get(0).getNombre());
+                        }
+                    }
+
+                    if (AccesoDatos.modificarCompra(2, cosa + ":" + String.valueOf(idGame), idCompra)) {
+                        System.out.println("Juego modificado");
+                    } else {
+                        System.out.println("No se ha podido modificar el juego");
+                    }
+                    break;
+                case 3:
+                    do {
+                        System.out.println("Introduce el nuevo precio:");
+                        try {
+                            precio = scanner.nextDouble();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (precio < 0);
+
+                    if (AccesoDatos.modificarCompra(3, String.valueOf(precio), idCompra)) {
+                        System.out.println("Precio modificado");
+                    } else {
+                        System.out.println("No se ha podido modificar el precio");
+                    }
+                    break;
+
+                case 4:
+                    do {
+                        System.out.println();
+                        System.out.println("Introduce el año: ");
+                        try {
+                            anyo = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (anyo < 0 || anyo > Year.now().getValue());
+
+                    do {
+                        System.out.println();
+                        System.out.println("Introduce el mes: ");
+                        try {
+                            mes = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+                    } while (mes < 1 || mes > 12);
+
+                    boolean diaCorrecto = false;
+                    do {
+                        System.out.println();
+                        System.out.println("Introduce el dia: ");
+                        try {
+                            dia = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Introduzca un número");
+                        } finally {
+                            scanner.nextLine();
+                        }
+
+                        if (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12) {
+                            if (dia > 0 && dia <= 31) {
+                                diaCorrecto = true;
+                            }
+                        } else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+                            if (dia > 0 && dia <= 30) {
+                                diaCorrecto = true;
+                            }
+                        } else {
+                            if (Year.isLeap(anyo)) {
+                                if (dia > 0 && dia <= 29) {
+                                    diaCorrecto = true;
+                                }
+                            } else {
+                                if (dia > 0 && dia <= 28) {
+                                    diaCorrecto = true;
+                                }
+                            }
+                        }
+                    } while (!diaCorrecto);
+
+                    date = anyo + "-" + mes + "-" + dia;
+
+                    if (AccesoDatos.modificarCompra(4, date, idCompra)) {
+                        System.out.println("Fecha modificada");
+                    } else {
+                        System.out.println("No se ha podido modificar la fecha");
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Volviendo...");
+                    break;
+            }
+        } while (opcion != 5);
     }
 }
